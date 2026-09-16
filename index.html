@@ -1,0 +1,2103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parity — Employer Portal</title>
+<style>
+:root{
+  --navy:#0f1b2d;
+  --navy-2:#1c2c44;
+  --charcoal:#333c47;
+  --muted:#6b7480;
+  --border:#e4e7ec;
+  --bg:#fafafa;
+  --card:#ffffff;
+  --accent:#0f1b2d;
+  --accent-2:#3a5a8c;
+  --good:#1f7a4d;
+  --good-bg:#eaf6f0;
+  --warn:#a15c00;
+  --warn-bg:#fdf3e3;
+  --bad:#a12222;
+  --bad-bg:#fbe9e9;
+  --radius:10px;
+  --shadow:0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--xcharcoal);
+  font-size:14px;
+  line-height:1.5;
+}
+a{color:inherit;}
+button{font-family:inherit;font-size:14px;cursor:pointer;}
+input,select,textarea{font-family:inherit;font-size:14px;}
+h1,h2,h3,h4{margin:0;color:var(--navy);font-weight:600;}
+.hidden{display:none !important;}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;justify-content:center;
+  padding:9px 16px;border-radius:8px;border:1px solid var(--border);
+  background:#fff;color:var(--navy);font-weight:500;transition:all .15s ease;
+  white-space:nowrap;
+}
+.btn:hover{background:#f4f5f6;}
+.btn-primary{background:var(--navy);border-color:var(--navy);color:#fff;}
+.btn-primary:hover{background:var(--navy-2);}
+.btn-danger{background:#fff;border-color:#f0c7c7;color:var(--bad);}
+.btn-danger:hover{background:var(--bad-bg);}
+.btn-sm{padding:5px 10px;font-size:12.5px;border-radius:6px;}
+.btn-link{background:none;border:none;color:var(--accent-2);padding:0;font-weight:500;}
+.btn-link:hover{text-decoration:underline;}
+.btn[disabled]{opacity:.5;cursor:not-allowed;}
+.btn-block{width:100%;}
+
+/* ---------- Layout ---------- */
+#app{display:flex;min-height:100vh;}
+#sidebar{
+  width:240px;flex-shrink:0;background:#fff;border-right:1px solid var(--border);
+  display:flex;flex-direction:column;position:sticky;top:0;height:100vh;transition:width .2s ease;
+}
+#sidebar.collapsed{width:68px;}
+#sidebar.collapsed .side-label, #sidebar.collapsed .side-brand-text{display:none;}
+.side-brand{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid var(--border);}
+.side-brand-mark{width:30px;height:30px;border-radius:7px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;}
+.side-brand-text{font-weight:700;letter-spacing:.06em;color:var(--navy);font-size:15px;}
+.side-nav{flex:1;padding:10px;overflow-y:auto;}
+.side-item{
+  display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;color:var(--muted);
+  cursor:pointer;font-weight:500;margin-bottom:2px;
+}
+.side-item svg{flex-shrink:0;width:18px;height:18px;}
+.side-item:hover{background:#f4f5f6;color:var(--navy);}
+.side-item.active{background:var(--navy);color:#fff;}
+.side-collapse-btn{margin:10px;padding:8px;border-top:1px solid var(--border);border-radius:0;background:none;border:none;border-top:1px solid var(--border);color:var(--muted);display:flex;align-items:center;gap:8px;}
+.side-collapse-btn:hover{color:var(--navy);}
+
+#main{flex:1;min-width:0;display:flex;flex-direction:column;}
+#topbar{
+  height:64px;flex-shrink:0;background:#fff;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:20;
+}
+.topbar-left{display:flex;align-items:center;gap:16px;}
+.mobile-menu-btn{display:none;background:none;border:none;padding:6px;}
+.demo-badge{
+  background:var(--warn-bg);color:var(--warn);border:1px solid #f0dcae;padding:4px 10px;
+  border-radius:6px;font-size:12px;font-weight:600;letter-spacing:.02em;
+}
+.topbar-search{
+  display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);
+  border-radius:8px;padding:7px 12px;width:260px;color:var(--muted);
+}
+.topbar-search input{border:none;background:none;outline:none;flex:1;color:var(--charcoal);}
+.topbar-right{display:flex;align-items:center;gap:14px;}
+.icon-btn{position:relative;background:none;border:none;padding:8px;border-radius:8px;color:var(--muted);display:flex;}
+.icon-btn:hover{background:#f4f5f6;color:var(--navy);}
+.badge-dot{position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;background:var(--bad);border:2px solid #fff;}
+.profile-menu{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;cursor:pointer;}
+.profile-menu:hover{background:#f4f5f6;}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;flex-shrink:0;}
+.profile-text{line-height:1.25;}
+.profile-name{font-weight:600;color:var(--navy);font-size:13.5px;}
+.profile-role{font-size:12px;color:var(--muted);}
+
+.dropdown{position:absolute;top:56px;right:24px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(16,24,40,.12);width:320px;z-index:50;overflow:hidden;}
+.dropdown-header{padding:14px 16px;border-bottom:1px solid var(--border);font-weight:600;color:var(--navy);display:flex;justify-content:space-between;align-items:center;}
+.dropdown-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;}
+.dropdown-item:last-child{border-bottom:none;}
+.dropdown-item:hover{background:var(--bg);}
+.notif-title{font-size:13px;color:var(--charcoal);margin-bottom:3px;}
+.notif-time{font-size:12px;color:var(--muted);}
+.profile-dropdown{position:absolute;top:56px;right:24px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(16,24,40,.12);width:220px;z-index:50;overflow:hidden;}
+
+#content{padding:28px 32px;flex:1;}
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
+.page-title{font-size:22px;margin-bottom:4px;}
+.page-sub{color:var(--muted);font-size:13.5px;}
+.page-actions{display:flex;gap:10px;flex-wrap:wrap;}
+
+/* ---------- Cards / grid ---------- */
+.grid{display:grid;gap:18px;}
+.grid-5{grid-template-columns:repeat(5,1fr);}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+@media(max-width:1200px){.grid-5{grid-template-columns:repeat(3,1fr);}.grid-4{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:800px){.grid-5,.grid-4,.grid-3,.grid-2{grid-template-columns:1fr;}}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;}
+.stat-card .stat-label{font-size:12.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em;margin-bottom:8px;}
+.stat-card .stat-value{font-size:26px;font-weight:700;color:var(--navy);}
+.stat-card .stat-foot{font-size:12px;color:var(--good);margin-top:6px;}
+.card-title{font-size:15px;font-weight:600;color:var(--navy);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
+.card-title small{font-weight:500;color:var(--accent-2);cursor:pointer;font-size:12.5px;}
+
+.list-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.list-row:last-child{border-bottom:none;}
+.list-row-title{font-weight:500;color:var(--charcoal);font-size:13.5px;}
+.list-row-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+
+.pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600;}
+.pill-good{background:var(--good-bg);color:var(--good);}
+.pill-warn{background:var(--warn-bg);color:var(--warn);}
+.pill-bad{background:var(--bad-bg);color:var(--bad);}
+.pill-muted{background:#f1f2f4;color:var(--muted);}
+
+/* ---------- Table ---------- */
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:#fff;}
+table{width:100%;border-collapse:collapse;min-width:760px;}
+th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:12px 16px;border-bottom:1px solid var(--border);background:#fbfbfc;font-weight:600;white-space:nowrap;}
+td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:13.5px;color:var(--charcoal);white-space:nowrap;}
+tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:#fafbfc;}
+.row-actions{display:flex;gap:6px;}
+
+/* ---------- Forms ---------- */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:700px){.form-grid{grid-template-columns:1fr;}}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:2px;}
+.field label{font-size:12.5px;font-weight:600;color:var(--navy);}
+.field .hint{font-size:11.5px;color:var(--muted);font-weight:400;}
+.field input,.field select,.field textarea{
+  padding:9px 12px;border:1px solid var(--border);border-radius:8px;outline:none;background:#fff;color:var(--charcoal);
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent-2);}
+.field-error{color:var(--bad);font-size:12px;}
+.field.error input,.field.error select{border-color:var(--bad);}
+.checkbox-row{display:flex;align-items:center;gap:8px;}
+
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+.toolbar input[type=text],.toolbar select{padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:#fff;}
+.toolbar input[type=text]{min-width:220px;}
+
+/* ---------- Toggle ---------- */
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle .slider{position:absolute;inset:0;background:#d7dbe0;border-radius:22px;transition:.15s;cursor:pointer;}
+.toggle .slider:before{content:"";position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.15s;}
+.toggle input:checked + .slider{background:var(--navy);}
+.toggle input:checked + .slider:before{transform:translateX(18px);}
+.settings-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);}
+.settings-row:last-child{border-bottom:none;}
+
+/* ---------- Modal ---------- */
+#modal-root{position:fixed;inset:0;z-index:100;pointer-events:none;}
+#modal-root:not(:empty){pointer-events:auto;}
+.modal-overlay{position:fixed;inset:0;background:rgba(15,27,45,.45);display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto;}
+.modal-box{background:#fff;border-radius:12px;width:560px;max-width:100%;box-shadow:0 20px 60px rgba(16,24,40,.25);}
+.modal-box.wide{width:760px;}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--border);}
+.modal-head h3{font-size:16px;}
+.modal-close{background:none;border:none;color:var(--muted);font-size:20px;line-height:1;padding:4px;}
+.modal-body{padding:22px;max-height:70vh;overflow-y:auto;}
+.modal-foot{padding:16px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
+
+/* ---------- Toasts ---------- */
+#toast-root{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:10px;}
+.toast{background:var(--navy);color:#fff;padding:13px 18px;border-radius:8px;box-shadow:0 8px 24px rgba(16,24,40,.25);font-size:13.5px;min-width:260px;display:flex;align-items:center;gap:10px;animation:toastIn .18s ease;}
+.toast.good{background:var(--good);}
+.toast.bad{background:var(--bad);}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* ---------- Bars / charts ---------- */
+.bar-compare{margin:10px 0;}
+.bar-compare-label{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px;}
+.bar-track{height:10px;background:#eef0f2;border-radius:6px;overflow:hidden;display:flex;}
+.bar-fill{height:100%;border-radius:6px;}
+.bar-fill.company{background:var(--navy);}
+.bar-fill.market{background:var(--accent-2);}
+.range-track{position:relative;height:8px;background:#eef0f2;border-radius:6px;margin:14px 0 22px;}
+.range-fill{position:absolute;top:0;bottom:0;background:#dde3ea;border-radius:6px;}
+.range-marker{position:absolute;top:-5px;width:2px;height:18px;background:var(--navy);}
+.range-marker.market{background:var(--accent-2);}
+.range-labels{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:4px;}
+.legend{display:flex;gap:18px;font-size:12.5px;color:var(--muted);margin-bottom:6px;}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+.dot.company{background:var(--navy);}
+.dot.market{background:var(--accent-2);}
+
+/* ---------- Comparison cards ---------- */
+.comp-figure{text-align:center;padding:6px 0;}
+.comp-figure .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;font-weight:600;}
+.comp-figure .val{font-size:24px;font-weight:700;color:var(--navy);margin:6px 0 2px;}
+.comp-figure .sub{font-size:12px;color:var(--muted);}
+.vs-divider{text-align:center;color:var(--muted);font-weight:600;font-size:13px;}
+
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:18px;overflow-x:auto;}
+.tab{padding:10px 16px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;}
+.tab.active{color:var(--navy);border-color:var(--navy);font-weight:600;}
+
+.suppressed{text-align:center;padding:50px 20px;}
+.suppressed-icon{width:52px;height:52px;border-radius:50%;background:var(--bad-bg);color:var(--bad);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:22px;font-weight:700;}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty-state h3{color:var(--navy);margin-bottom:8px;}
+.empty-state svg{margin-bottom:14px;opacity:.5;}
+
+.progress-outer{height:8px;background:#eef0f2;border-radius:6px;overflow:hidden;margin:14px 0;}
+.progress-inner{height:100%;background:var(--navy);border-radius:6px;transition:width .3s ease;}
+
+.upload-drop{border:2px dashed var(--border);border-radius:12px;padding:40px 20px;text-align:center;color:var(--muted);cursor:pointer;background:#fbfbfc;}
+.upload-drop:hover{border-color:var(--accent-2);}
+.upload-steps{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
+.upload-step{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);padding:6px 12px;border-radius:20px;background:#f1f2f4;}
+.upload-step.active{background:var(--navy);color:#fff;font-weight:600;}
+.upload-step.done{background:var(--good-bg);color:var(--good);}
+
+.access-card{border:1px solid var(--border);border-radius:10px;padding:16px;background:#fbfbfc;}
+.access-card h4{font-size:14px;margin-bottom:6px;}
+.access-card p{font-size:12.5px;color:var(--muted);margin:0;}
+
+.coming-soon{opacity:.55;pointer-events:none;position:relative;}
+.coming-soon .cs-tag{position:absolute;top:10px;right:10px;background:var(--navy);color:#fff;font-size:10.5px;padding:2px 8px;border-radius:12px;font-weight:600;}
+
+/* ---------- Login ---------- */
+#view-login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#fafbfc,#f3f4f6);padding:20px;}
+.login-box{width:400px;max-width:100%;background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:0 20px 60px rgba(16,24,40,.08);padding:36px 32px;}
+.login-brand{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.login-tagline{color:var(--muted);font-size:13px;margin-bottom:26px;}
+.login-divider{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin:18px 0;}
+.login-divider:before,.login-divider:after{content:"";flex:1;height:1px;background:var(--border);}
+.login-demo-note{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--muted);margin-top:16px;}
+
+@media(max-width:900px){
+  #sidebar{position:fixed;left:-260px;top:0;height:100vh;z-index:60;transition:left .2s ease;width:240px;}
+  #sidebar.mobile-open{left:0;}
+  #sidebar.collapsed{width:240px;}
+  #sidebar.collapsed .side-label,#sidebar.collapsed .side-brand-text{display:block;}
+  .mobile-menu-btn{display:flex;}
+  .topbar-search{display:none;}
+  #content{padding:18px;}
+  .grid-5,.grid-4,.grid-3,.grid-2{grid-template-columns:1fr;}
+  .dropdown,.profile-dropdown{right:10px;width:calc(100vw - 20px);}
+}
+#sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:55;}
+#sidebar-overlay.show{display:block;}
+</style>
+</head>
+<body>
+
+<div id="view-login">
+  <div class="login-box">
+    <div class="login-brand">
+      <div class="side-brand-mark">P</div>
+      <h2>PARITY</h2>
+    </div>
+    <div class="login-tagline">Know where your compensation stands.</div>
+    <div class="field">
+      <label>Work Email</label>
+      <input type="text" id="login-email" placeholder="sarah.williams@abccapital.com" value="sarah.williams@abccapital.com">
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Password</label>
+      <input type="password" id="login-password" placeholder="••••••••" value="demo1234">
+    </div>
+    <div id="login-error" class="field-error hidden" style="margin-top:8px;"></div>
+    <button class="btn btn-primary btn-block" style="margin-top:18px;" onclick="handleLogin()">Sign In</button>
+    <div style="text-align:center;margin-top:12px;">
+      <button class="btn-link" onclick="openForgotPassword()">Forgot Password?</button>
+    </div>
+    <div class="login-divider">or</div>
+    <button class="btn btn-block" onclick="handleDemoLogin()">Continue as Demo Employer</button>
+    <div class="login-demo-note">DEMO ENVIRONMENT — Illustrative Data. Use any email/password, or "Continue as Demo Employer" to explore instantly.</div>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <div id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
+  <div id="sidebar">
+    <div class="side-brand">
+      <div class="side-brand-mark">P</div>
+      <div class="side-brand-text">PARITY</div>
+    </div>
+    <div class="side-nav" id="side-nav"></div>
+    <button class="side-collapse-btn" onclick="toggleSidebar()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3v18M15 3v18" stroke-linecap="round"/></svg>
+      <span class="side-label">Collapse</span>
+    </button>
+  </div>
+
+  <div id="main">
+    <div id="topbar">
+      <div class="topbar-left">
+        <button class="mobile-menu-btn" onclick="openMobileSidebar()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18" stroke-linecap="round"/></svg>
+        </button>
+        <span class="demo-badge">DEMO ENVIRONMENT — Illustrative Data</span>
+        <div class="topbar-search">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+          <input type="text" placeholder="Search employees, groups, reports..." id="global-search" oninput="handleGlobalSearch(this.value)">
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div style="position:relative;">
+          <button class="icon-btn" onclick="toggleNotifDropdown(event)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <span class="badge-dot" id="notif-dot"></span>
+          </button>
+        </div>
+        <div style="position:relative;">
+          <div class="profile-menu" onclick="toggleProfileDropdown(event)">
+            <div class="avatar">SW</div>
+            <div class="profile-text">
+              <div class="profile-name">Sarah Williams</div>
+              <div class="profile-role">HR & Compensation Manager</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="content"></div>
+  </div>
+</div>
+
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+
+<script>
+/* ======================================================================
+   MOCK DATA
+====================================================================== */
+const ROLES = ["Analyst","Associate","Vice President","Investment Director","Managing Director"];
+const LOCATIONS = ["London","New York"];
+const STRATEGIES = ["Private Equity","Hedge Fund","Asset Management"];
+const ROLE_BASE = {"Analyst":95000,"Associate":140000,"Vice President":190000,"Investment Director":260000,"Managing Director":340000};
+const ROLE_BONUS_MULT = {"Analyst":0.35,"Associate":0.55,"Vice President":0.65,"Investment Director":0.75,"Managing Director":0.95};
+const LOC_MULT = {"London":1.0,"New York":1.12};
+const STRAT_MULT = {"Private Equity":1.08,"Hedge Fund":1.15,"Asset Management":0.95};
+
+function seedEmployees(){
+  const list = [];
+  let n = 1;
+  const combos = [];
+  ROLES.forEach(role=>{
+    LOCATIONS.forEach(loc=>{
+      STRATEGIES.forEach(strat=>{
+        combos.push({role,loc,strat});
+      });
+    });
+  });
+  // pick ~28 combos with weighting so senior roles have fewer
+  const weighted = [];
+  combos.forEach(c=>{
+    let count = 1;
+    if(c.role==="Analyst" || c.role==="Associate") count = 2;
+    if(c.role==="Managing Director") count = 1;
+    for(let i=0;i<count;i++) weighted.push(c);
+  });
+  weighted.slice(0,28).forEach(c=>{
+    const id = "EMP-" + String(n).padStart(3,"0");
+    const baseVariance = 0.9 + Math.random()*0.25;
+    const base = Math.round(ROLE_BASE[c.role]*LOC_MULT[c.loc]*STRAT_MULT[c.strat]*baseVariance/1000)*1000;
+    const bonus = Math.round(base*ROLE_BONUS_MULT[c.role]*(0.85+Math.random()*0.3)/1000)*1000;
+    const other = Math.round(base*0.03/500)*500;
+    const carry = (c.strat==="Private Equity" && (c.role==="Investment Director"||c.role==="Managing Director")) ? Math.round(base*0.4/1000)*1000 : 0;
+    list.push({
+      id, role:c.role, location:c.loc, strategy:c.strat,
+      baseSalary:base, bonus, other, carry,
+      totalComp: base+bonus+other+carry,
+      status:"Active"
+    });
+    n++;
+  });
+  return list;
+}
+
+const state = {
+  session:null,
+  currentView:"dashboard",
+  sidebarCollapsed:false,
+  mobileSidebarOpen:false,
+  notifDropdownOpen:false,
+  profileDropdownOpen:false,
+  globalSearchTerm:"",
+
+  company:{
+    name:"ABC Capital",
+    industry:"Investment Management",
+    headOffice:"London, UK",
+    size:500,
+    locations:["London","New York"],
+    strategies:["Private Equity","Hedge Fund","Asset Management"]
+  },
+
+  employees: seedEmployees(),
+  employeesAddedCount:0,
+
+  employeeGroups:[
+    {id:"grp-1", name:"London Investment Directors", role:"Investment Director", location:"London", strategy:"Private Equity", createdOn:"2026-08-02"},
+    {id:"grp-2", name:"London Associates", role:"Associate", location:"London", strategy:"Asset Management", createdOn:"2026-08-04"},
+    {id:"grp-3", name:"New York Investment Directors", role:"Investment Director", location:"New York", strategy:"Hedge Fund", createdOn:"2026-08-10"},
+    {id:"grp-4", name:"Private Equity Team", role:"", location:"", strategy:"Private Equity", createdOn:"2026-08-15"},
+    {id:"grp-5", name:"Hedge Fund Team", role:"", location:"", strategy:"Hedge Fund", createdOn:"2026-08-20"}
+  ],
+
+  users:[
+    {id:"u1", name:"Sarah Williams", role:"HR & Compensation Manager", email:"sarah.williams@abccapital.com", access:"Admin", status:"Active"},
+    {id:"u2", name:"John Miller", role:"Compensation Analyst", email:"john.miller@abccapital.com", access:"Manager", status:"Active"},
+    {id:"u3", name:"David Brown", role:"HR Director", email:"david.brown@abccapital.com", access:"Viewer", status:"Active"}
+  ],
+
+  savedComparisons:[
+    {id:"cmp-1", name:"London Investment Directors — 2026", date:"2026-09-10", group:"London Investment Directors", location:"London", strategy:"Private Equity", role:"Investment Director"}
+  ],
+
+  reports:[
+    {id:"rep-1", name:"London Investment Director Benchmark", date:"2026-09-12", group:"London Investment Directors", location:"London", strategy:"Private Equity", role:"Investment Director"},
+    {id:"rep-2", name:"Private Equity Compensation Overview", date:"2026-09-10", group:"Private Equity Team", location:"", strategy:"Private Equity", role:""},
+    {id:"rep-3", name:"New York VP Comparison", date:"2026-09-05", group:"New York Investment Directors", location:"New York", strategy:"Hedge Fund", role:"Vice President"}
+  ],
+
+  activityLog:[
+    {who:"Sarah", text:"uploaded employee data", time:"Today, 10:32 AM"},
+    {who:"John", text:'generated a compensation report', time:"Yesterday, 3:15 PM"},
+    {who:"Sarah", text:'created "London Investment Directors" group', time:"Yesterday, 11:20 AM"},
+    {who:"David", text:"viewed the Private Equity Compensation Overview report", time:"2 days ago"},
+    {who:"Sarah", text:"invited John Miller to the account", time:"5 days ago"}
+  ],
+
+  notifications:[
+    {id:"n1", title:"Employee data upload completed.", time:"Today, 10:33 AM", read:false},
+    {id:"n2", title:"Your London Investment Director comparison is ready.", time:"Today, 9:05 AM", read:false},
+    {id:"n3", title:"Annual compensation data update is due.", time:"2 days ago", read:true}
+  ],
+
+  settings:{
+    emailNotifications:true,
+    reportNotifications:true,
+    annualReminder:true
+  },
+
+  lastDataUpdate:"12 Sep 2026",
+
+  // transient UI state
+  employeeFilters:{search:"", role:"", location:"", strategy:"", status:""},
+  employeeSort:{key:null, dir:1},
+  comparisonSelection:{group:"", location:"", role:"", strategy:""},
+  comparisonResult:null,
+  comparisonTab:"base",
+  groupCompare:{groupA:"grp-1", groupB:"grp-3"},
+  uploadState:null
+};
+
+function fmtMoney(n){
+  return "£" + Math.round(n).toLocaleString("en-GB");
+}
+function uid(prefix){ return prefix + "-" + Math.random().toString(36).slice(2,9); }
+
+/* ======================================================================
+   MARKET BENCHMARK ENGINE (mock)
+====================================================================== */
+function marketBenchmark(role, location, strategy){
+  if(!role || !ROLE_BASE[role]) return null;
+  const loc = location && LOC_MULT[location] ? location : "London";
+  const strat = strategy && STRAT_MULT[strategy] ? strategy : "Private Equity";
+  const base = ROLE_BASE[role]*LOC_MULT[loc]*STRAT_MULT[strat]*1.03;
+  const bonus = base*ROLE_BONUS_MULT[role]*1.08;
+  const other = base*0.035;
+  const carry = (strat==="Private Equity" && (role==="Investment Director"||role==="Managing Director")) ? base*0.42 : 0;
+  const total = base+bonus+other+carry;
+  const range = (v)=>({low:Math.round(v*0.88/1000)*1000, high:Math.round(v*1.14/1000)*1000});
+  return {
+    base:Math.round(base/1000)*1000, bonus:Math.round(bonus/1000)*1000, other:Math.round(other/500)*500,
+    carry:Math.round(carry/1000)*1000, total:Math.round(total/1000)*1000,
+    range:{base:range(base), bonus:range(bonus), total:range(total), carry: carry? range(carry): {low:0,high:0}}
+  };
+}
+
+function matchingEmployees(filters){
+  return state.employees.filter(e=>{
+    if(filters.role && e.role!==filters.role) return false;
+    if(filters.location && e.location!==filters.location) return false;
+    if(filters.strategy && e.strategy!==filters.strategy) return false;
+    return true;
+  });
+}
+
+function companyAverages(emps){
+  if(!emps.length) return null;
+  const sum = (k)=> emps.reduce((a,e)=>a+e[k],0);
+  return {
+    base: sum("baseSalary")/emps.length,
+    bonus: sum("bonus")/emps.length,
+    other: sum("other")/emps.length,
+    carry: sum("carry")/emps.length,
+    total: sum("totalComp")/emps.length,
+    count: emps.length
+  };
+}
+
+/* ======================================================================
+   NAV CONFIG
+====================================================================== */
+const NAV_ITEMS = [
+  {key:"dashboard", label:"Dashboard", icon:'<path d="M3 13h8V3H3v10zM13 21h8V11h-8v10zM13 3v6h8V3h-8zM3 21h8v-6H3v6z"/>'},
+  {key:"company", label:"My Company", icon:'<path d="M3 21h18M6 21V7l6-4 6 4v14M9 9h1M9 13h1M14 9h1M14 13h1M9 21v-4h6v4"/>'},
+  {key:"employees", label:"Employees", icon:'<circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 014-4h6a4 4 0 014 4v2"/><path d="M17 11a4 4 0 000-8M23 21v-2a4 4 0 00-3-3.87"/>'},
+  {key:"groups", label:"Employee Groups", icon:'<circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20c0-3 2.5-5 6-5s6 2 6 5M10 20c0-3 2.5-5 6-5s6 2 6 5"/>'},
+  {key:"upload", label:"Upload Data", icon:'<path d="M12 3v12m0-12l-4 4m4-4l4 4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>'},
+  {key:"comparison", label:"Market Comparison", icon:'<path d="M3 3v18h18"/><path d="M7 15l4-6 4 3 5-8"/>'},
+  {key:"saved", label:"Saved Comparisons", icon:'<path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z"/>'},
+  {key:"reports", label:"Reports", icon:'<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6M9 9h1"/>'},
+  {key:"users", label:"Users & Access", icon:'<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>'},
+  {key:"activity", label:"Activity", icon:'<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'},
+  {key:"settings", label:"Settings", icon:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.6V21a2 2 0 01-4 0v-.2a1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.6-1H3a2 2 0 010-4h.2a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.6V3a2 2 0 014 0v.2a1.7 1.7 0 001 1.6 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.6 1H21a2 2 0 010 4h-.2a1.7 1.7 0 00-1.6 1z"/>'}
+];
+
+function renderSideNav(){
+  const el = document.getElementById("side-nav");
+  el.innerHTML = NAV_ITEMS.map(item=>`
+    <div class="side-item ${state.currentView===item.key?'active':''}" onclick="navigate('${item.key}')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${item.icon}</svg>
+      <span class="side-label">${item.label}</span>
+    </div>
+  `).join("");
+}
+
+function navigate(view){
+  state.currentView = view;
+  state.mobileSidebarOpen = false;
+  document.getElementById("sidebar").classList.remove("mobile-open");
+  document.getElementById("sidebar-overlay").classList.remove("show");
+  renderSideNav();
+  renderContent();
+  window.scrollTo(0,0);
+}
+
+function toggleSidebar(){
+  state.sidebarCollapsed = !state.sidebarCollapsed;
+  document.getElementById("sidebar").classList.toggle("collapsed", state.sidebarCollapsed);
+}
+function openMobileSidebar(){
+  document.getElementById("sidebar").classList.add("mobile-open");
+  document.getElementById("sidebar-overlay").classList.add("show");
+}
+function closeMobileSidebar(){
+  document.getElementById("sidebar").classList.remove("mobile-open");
+  document.getElementById("sidebar-overlay").classList.remove("show");
+}
+
+/* ======================================================================
+   AUTH
+====================================================================== */
+function handleLogin(){
+  const email = document.getElementById("login-email").value.trim();
+  const pw = document.getElementById("login-password").value.trim();
+  const errEl = document.getElementById("login-error");
+  if(!email || !pw){
+    errEl.textContent = "Please enter both your work email and password.";
+    errEl.classList.remove("hidden");
+    return;
+  }
+  errEl.classList.add("hidden");
+  enterApp();
+}
+function handleDemoLogin(){ enterApp(); }
+function enterApp(){
+  state.session = {user:"Sarah Williams"};
+  document.getElementById("view-login").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  renderSideNav();
+  navigate("dashboard");
+  updateNotifDot();
+}
+function openForgotPassword(){
+  const errEl = document.getElementById("login-error");
+  errEl.classList.remove("hidden");
+  errEl.style.color = "var(--accent-2)";
+  errEl.textContent = "This is a demo environment — password reset emails are simulated. Use \"Continue as Demo Employer\" to proceed instantly.";
+}
+
+/* ======================================================================
+   MODAL / TOAST HELPERS
+====================================================================== */
+function openModal(html, opts){
+  opts = opts||{};
+  const root = document.getElementById("modal-root");
+  root.innerHTML = `<div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+    <div class="modal-box ${opts.wide?'wide':''}">${html}</div>
+  </div>`;
+}
+function closeModal(){
+  document.getElementById("modal-root").innerHTML = "";
+}
+function showToast(msg, kind){
+  const root = document.getElementById("toast-root");
+  const t = document.createElement("div");
+  t.className = "toast " + (kind||"");
+  t.textContent = msg;
+  root.appendChild(t);
+  setTimeout(()=>{ t.style.transition="opacity .3s"; t.style.opacity="0"; setTimeout(()=>t.remove(),300); }, 2800);
+}
+function logActivity(text, who){
+  state.activityLog.unshift({who: who||"Sarah", text, time:"Just now"});
+}
+function pushNotification(title){
+  state.notifications.unshift({id:uid("n"), title, time:"Just now", read:false});
+  updateNotifDot();
+}
+function updateNotifDot(){
+  const dot = document.getElementById("notif-dot");
+  const anyUnread = state.notifications.some(n=>!n.read);
+  if(dot) dot.style.display = anyUnread ? "block":"none";
+}
+
+/* ======================================================================
+   TOPBAR: notifications / profile dropdowns
+====================================================================== */
+function toggleNotifDropdown(e){
+  e.stopPropagation();
+  state.profileDropdownOpen = false;
+  state.notifDropdownOpen = !state.notifDropdownOpen;
+  renderDropdowns();
+}
+function toggleProfileDropdown(e){
+  e.stopPropagation();
+  state.notifDropdownOpen = false;
+  state.profileDropdownOpen = !state.profileDropdownOpen;
+  renderDropdowns();
+}
+document.addEventListener("click", ()=>{
+  if(state.notifDropdownOpen || state.profileDropdownOpen){
+    state.notifDropdownOpen = false;
+    state.profileDropdownOpen = false;
+    renderDropdowns();
+  }
+});
+function renderDropdowns(){
+  let html = "";
+  if(state.notifDropdownOpen){
+    html += `<div class="dropdown" onclick="event.stopPropagation()">
+      <div class="dropdown-header">Notifications <button class="btn-link" onclick="markAllRead()">Mark all read</button></div>
+      ${state.notifications.map(n=>`
+        <div class="dropdown-item">
+          <div class="notif-title">${n.read?'':'<strong>•</strong> '}${n.title}</div>
+          <div class="notif-time">${n.time}</div>
+        </div>
+      `).join("") || '<div class="dropdown-item">No notifications</div>'}
+    </div>`;
+  }
+  if(state.profileDropdownOpen){
+    html += `<div class="profile-dropdown" onclick="event.stopPropagation()">
+      <div class="dropdown-item" onclick="navigate('settings');closeDropdowns()">Account Settings</div>
+      <div class="dropdown-item" onclick="navigate('company');closeDropdowns()">My Company</div>
+      <div class="dropdown-item" onclick="handleSignOut()">Sign Out</div>
+    </div>`;
+  }
+  document.querySelectorAll(".dropdown,.profile-dropdown").forEach(el=>el.remove());
+  document.getElementById("topbar").insertAdjacentHTML("beforeend", html);
+}
+function closeDropdowns(){ state.notifDropdownOpen=false; state.profileDropdownOpen=false; renderDropdowns(); }
+function markAllRead(){
+  state.notifications.forEach(n=>n.read=true);
+  updateNotifDot();
+  renderDropdowns();
+}
+function handleSignOut(){
+  state.session = null;
+  document.getElementById("app").classList.add("hidden");
+  document.getElementById("view-login").classList.remove("hidden");
+  closeDropdowns();
+}
+function handleGlobalSearch(v){ state.globalSearchTerm = v; }
+
+/* ======================================================================
+   CONTENT RENDER DISPATCH
+====================================================================== */
+function renderContent(){
+  const el = document.getElementById("content");
+  switch(state.currentView){
+    case "dashboard": el.innerHTML = renderDashboard(); break;
+    case "company": el.innerHTML = renderCompany(); break;
+    case "employees": el.innerHTML = renderEmployees(); break;
+    case "groups": el.innerHTML = renderGroups(); break;
+    case "upload": el.innerHTML = renderUpload(); break;
+    case "comparison": el.innerHTML = renderComparison(); break;
+    case "saved": el.innerHTML = renderSaved(); break;
+    case "reports": el.innerHTML = renderReports(); break;
+    case "users": el.innerHTML = renderUsers(); break;
+    case "activity": el.innerHTML = renderActivity(); break;
+    case "settings": el.innerHTML = renderSettings(); break;
+    default: el.innerHTML = "<div class='empty-state'>Not found</div>";
+  }
+}
+
+/* ======================================================================
+   DASHBOARD
+====================================================================== */
+function renderDashboard(){
+  const c = state.company;
+  const avgTotal = companyAverages(state.employees);
+  return `
+  <div class="page-header">
+    <div>
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub">Welcome back, Sarah. Here's how ${c.name} is tracking.</div>
+    </div>
+    <div class="page-actions">
+      <button class="btn" onclick="navigate('upload')">Upload Employee Data</button>
+      <button class="btn btn-primary" onclick="navigate('comparison')">Run Market Comparison</button>
+    </div>
+  </div>
+
+  <div class="grid grid-5" style="margin-bottom:20px;">
+    <div class="card stat-card"><div class="stat-label">Total Employees</div><div class="stat-value">${c.size}</div><div class="stat-foot">Company headcount</div></div>
+    <div class="card stat-card"><div class="stat-label">Employee Records</div><div class="stat-value">${state.employees.length}</div><div class="stat-foot">${state.employeesAddedCount} added this session</div></div>
+    <div class="card stat-card"><div class="stat-label">Employee Groups</div><div class="stat-value">${state.employeeGroups.length}</div><div class="stat-foot">Ready to compare</div></div>
+    <div class="card stat-card"><div class="stat-label">Available Comparisons</div><div class="stat-value">${state.savedComparisons.length}</div><div class="stat-foot">Saved comparisons</div></div>
+    <div class="card stat-card"><div class="stat-label">Reports Generated</div><div class="stat-value">${state.reports.length}</div><div class="stat-foot">Ready to download</div></div>
+  </div>
+
+  <div class="grid grid-2" style="margin-bottom:20px;">
+    <div class="card">
+      <div class="card-title">Compensation Overview</div>
+      ${avgTotal ? `
+        <div class="bar-compare">
+          <div class="bar-compare-label"><span>Average Base Salary</span><strong>${fmtMoney(avgTotal.base)}</strong></div>
+          <div class="range-track"><div class="range-fill" style="left:0;width:100%;"></div></div>
+        </div>
+        <div class="bar-compare">
+          <div class="bar-compare-label"><span>Average Bonus</span><strong>${fmtMoney(avgTotal.bonus)}</strong></div>
+        </div>
+        <div class="bar-compare">
+          <div class="bar-compare-label"><span>Average Total Compensation</span><strong>${fmtMoney(avgTotal.total)}</strong></div>
+        </div>
+        <div class="page-sub" style="margin-top:10px;">Based on ${avgTotal.count} employee records. Figures are illustrative.</div>
+      ` : `<div class="empty-state">No employee data yet.</div>`}
+    </div>
+    <div class="card">
+      <div class="card-title">Data Status</div>
+      <div class="list-row"><div><div class="list-row-title">Last Data Update</div><div class="list-row-sub">Company-wide compensation data</div></div><strong>${state.lastDataUpdate}</strong></div>
+      <div class="list-row"><div><div class="list-row-title">Next Recommended Update</div><div class="list-row-sub">Keep benchmarks accurate year over year</div></div><span class="pill pill-warn">Sep 2027</span></div>
+      <div class="list-row"><div><div class="list-row-title">Records Needing Review</div><div class="list-row-sub">From your last upload</div></div><span class="pill pill-muted">0</span></div>
+      <button class="btn btn-block" style="margin-top:12px;" onclick="navigate('upload')">Update Compensation Data</button>
+    </div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-title">Recent Comparisons <small onclick="navigate('saved')">View all</small></div>
+      ${state.savedComparisons.slice(0,4).map(cmp=>`
+        <div class="list-row">
+          <div><div class="list-row-title">${cmp.name}</div><div class="list-row-sub">${cmp.date}</div></div>
+          <button class="btn btn-sm" onclick="viewSavedComparison('${cmp.id}')">View</button>
+        </div>
+      `).join("") || `<div class="empty-state" style="padding:20px;">No comparisons saved yet. <br><button class="btn btn-sm" style="margin-top:10px;" onclick="navigate('comparison')">Run one now</button></div>`}
+    </div>
+    <div class="card">
+      <div class="card-title">Recent Reports <small onclick="navigate('reports')">View all</small></div>
+      ${state.reports.slice(0,4).map(r=>`
+        <div class="list-row">
+          <div><div class="list-row-title">${r.name}</div><div class="list-row-sub">${r.date}</div></div>
+          <button class="btn btn-sm" onclick="viewReport('${r.id}')">View</button>
+        </div>
+      `).join("") || `<div class="empty-state" style="padding:20px;">No reports yet.</div>`}
+    </div>
+  </div>
+  `;
+}
+
+/* ======================================================================
+   MY COMPANY
+====================================================================== */
+function renderCompany(){
+  const c = state.company;
+  return `
+  <div class="page-header">
+    <div><div class="page-title">My Company</div><div class="page-sub">Keep your company profile up to date so comparisons stay accurate.</div></div>
+  </div>
+  <div class="card" style="max-width:760px;">
+    <div class="form-grid">
+      <div class="field"><label>Company Name</label><input id="cf-name" type="text" value="${c.name}"></div>
+      <div class="field"><label>Industry</label><input id="cf-industry" type="text" value="${c.industry}"></div>
+      <div class="field"><label>Head Office</label><input id="cf-office" type="text" value="${c.headOffice}"></div>
+      <div class="field"><label>Company Size</label><input id="cf-size" type="number" value="${c.size}"></div>
+    </div>
+    <div class="field" style="margin-top:16px;">
+      <label>Locations <span class="hint">Comma-separated</span></label>
+      <input id="cf-locations" type="text" value="${c.locations.join(', ')}">
+    </div>
+    <div class="field" style="margin-top:16px;">
+      <label>Investment Strategies <span class="hint">Comma-separated</span></label>
+      <input id="cf-strategies" type="text" value="${c.strategies.join(', ')}">
+    </div>
+    <div style="margin-top:10px;">
+      ${c.locations.map(l=>`<span class="pill pill-muted" style="margin-right:6px;">${l}</span>`).join("")}
+    </div>
+    <div style="margin-top:6px;">
+      ${c.strategies.map(l=>`<span class="pill pill-good" style="margin-right:6px;">${l}</span>`).join("")}
+    </div>
+    <div style="margin-top:22px;display:flex;gap:10px;">
+      <button class="btn btn-primary" onclick="saveCompany()">Save Changes</button>
+      <button class="btn" onclick="renderContent()">Cancel</button>
+    </div>
+  </div>
+  `;
+}
+function saveCompany(){
+  const c = state.company;
+  c.name = document.getElementById("cf-name").value.trim() || c.name;
+  c.industry = document.getElementById("cf-industry").value.trim();
+  c.headOffice = document.getElementById("cf-office").value.trim();
+  c.size = parseInt(document.getElementById("cf-size").value) || c.size;
+  c.locations = document.getElementById("cf-locations").value.split(",").map(s=>s.trim()).filter(Boolean);
+  c.strategies = document.getElementById("cf-strategies").value.split(",").map(s=>s.trim()).filter(Boolean);
+  logActivity("updated company information");
+  showToast("Company information saved.", "good");
+  renderContent();
+}
+
+/* ======================================================================
+   EMPLOYEES
+====================================================================== */
+function filteredEmployees(){
+  const f = state.employeeFilters;
+  let list = state.employees.filter(e=>{
+    if(f.search && !e.id.toLowerCase().includes(f.search.toLowerCase()) && !e.role.toLowerCase().includes(f.search.toLowerCase())) return false;
+    if(f.role && e.role!==f.role) return false;
+    if(f.location && e.location!==f.location) return false;
+    if(f.strategy && e.strategy!==f.strategy) return false;
+    if(f.status && e.status!==f.status) return false;
+    return true;
+  });
+  if(state.employeeSort.key){
+    const {key,dir} = state.employeeSort;
+    list = list.slice().sort((a,b)=>{
+      if(typeof a[key]==="number") return (a[key]-b[key])*dir;
+      return String(a[key]).localeCompare(String(b[key]))*dir;
+    });
+  }
+  return list;
+}
+function renderEmployees(){
+  const f = state.employeeFilters;
+  const list = filteredEmployees();
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Employees</div><div class="page-sub">${state.employees.length} employee records at ${state.company.name}. Identified by Employee ID only.</div></div>
+    <div class="page-actions">
+      <button class="btn btn-primary" onclick="openAddEmployeeModal()">+ Add Employee</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" placeholder="Search by Employee ID or role..." value="${f.search}" oninput="setEmployeeFilter('search',this.value)">
+    <select onchange="setEmployeeFilter('role',this.value)">
+      <option value="">All Job Roles</option>
+      ${ROLES.map(r=>`<option value="${r}" ${f.role===r?'selected':''}>${r}</option>`).join("")}
+    </select>
+    <select onchange="setEmployeeFilter('location',this.value)">
+      <option value="">All Locations</option>
+      ${LOCATIONS.map(r=>`<option value="${r}" ${f.location===r?'selected':''}>${r}</option>`).join("")}
+    </select>
+    <select onchange="setEmployeeFilter('strategy',this.value)">
+      <option value="">All Strategies</option>
+      ${STRATEGIES.map(r=>`<option value="${r}" ${f.strategy===r?'selected':''}>${r}</option>`).join("")}
+    </select>
+    <select onchange="setEmployeeFilter('status',this.value)">
+      <option value="">All Status</option>
+      <option value="Active" ${f.status==='Active'?'selected':''}>Active</option>
+      <option value="Needs Review" ${f.status==='Needs Review'?'selected':''}>Needs Review</option>
+    </select>
+    ${(f.search||f.role||f.location||f.strategy||f.status) ? `<button class="btn btn-sm" onclick="clearEmployeeFilters()">Clear filters</button>` : ""}
+  </div>
+
+  ${list.length ? `
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th onclick="sortEmployees('id')" style="cursor:pointer;">Employee ID</th>
+        <th onclick="sortEmployees('role')" style="cursor:pointer;">Job Role</th>
+        <th onclick="sortEmployees('location')" style="cursor:pointer;">Location</th>
+        <th onclick="sortEmployees('strategy')" style="cursor:pointer;">Strategy</th>
+        <th onclick="sortEmployees('baseSalary')" style="cursor:pointer;">Base Salary</th>
+        <th onclick="sortEmployees('bonus')" style="cursor:pointer;">Bonus</th>
+        <th onclick="sortEmployees('totalComp')" style="cursor:pointer;">Total Compensation</th>
+        <th>Status</th>
+        <th></th>
+      </tr></thead>
+      <tbody>
+        ${list.map(e=>`
+          <tr>
+            <td><strong>${e.id}</strong></td>
+            <td>${e.role}</td>
+            <td>${e.location}</td>
+            <td>${e.strategy}</td>
+            <td>${fmtMoney(e.baseSalary)}</td>
+            <td>${fmtMoney(e.bonus)}</td>
+            <td>${fmtMoney(e.totalComp)}</td>
+            <td><span class="pill ${e.status==='Active'?'pill-good':'pill-warn'}">${e.status}</span></td>
+            <td class="row-actions">
+              <button class="btn btn-sm" onclick="viewEmployee('${e.id}')">View</button>
+              <button class="btn btn-sm" onclick="openEditEmployeeModal('${e.id}')">Edit</button>
+              <button class="btn btn-sm btn-danger" onclick="confirmRemoveEmployee('${e.id}')">Remove</button>
+            </td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  </div>
+  ` : `
+  <div class="card empty-state">
+    <h3>No employees match these filters</h3>
+    <p>Try clearing filters or add a new employee.</p>
+    <button class="btn btn-primary" style="margin-top:12px;" onclick="clearEmployeeFilters()">Clear Filters</button>
+  </div>
+  `}
+  `;
+}
+function setEmployeeFilter(key,val){ state.employeeFilters[key]=val; renderContent(); }
+function clearEmployeeFilters(){ state.employeeFilters={search:"",role:"",location:"",strategy:"",status:""}; renderContent(); }
+function sortEmployees(key){
+  if(state.employeeSort.key===key) state.employeeSort.dir *= -1;
+  else { state.employeeSort.key=key; state.employeeSort.dir=1; }
+  renderContent();
+}
+function nextEmployeeId(){
+  const nums = state.employees.map(e=>parseInt(e.id.split("-")[1]));
+  const max = nums.length ? Math.max(...nums) : 0;
+  return "EMP-" + String(max+1).padStart(3,"0");
+}
+function openAddEmployeeModal(){
+  openModal(`
+    <div class="modal-head"><h3>Add Employee</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Job Role</label><select id="ne-role">${ROLES.map(r=>`<option>${r}</option>`).join("")}</select></div>
+        <div class="field"><label>Location</label><select id="ne-location">${LOCATIONS.map(r=>`<option>${r}</option>`).join("")}</select></div>
+        <div class="field"><label>Strategy</label><select id="ne-strategy">${STRATEGIES.map(r=>`<option>${r}</option>`).join("")}</select></div>
+        <div class="field"><label>Base Salary (£)</label><input id="ne-base" type="number" placeholder="e.g. 190000"></div>
+        <div class="field"><label>Bonus (£)</label><input id="ne-bonus" type="number" placeholder="e.g. 95000"></div>
+        <div class="field"><label>Other Compensation (£)</label><input id="ne-other" type="number" placeholder="e.g. 5000" value="0"></div>
+        <div class="field"><label>Carry (£) <span class="hint">If applicable</span></label><input id="ne-carry" type="number" placeholder="0" value="0"></div>
+      </div>
+      <div id="ne-error" class="field-error hidden" style="margin-top:10px;"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAddEmployee()">Add Employee</button>
+    </div>
+  `);
+}
+function submitAddEmployee(){
+  const role = document.getElementById("ne-role").value;
+  const location = document.getElementById("ne-location").value;
+  const strategy = document.getElementById("ne-strategy").value;
+  const base = parseFloat(document.getElementById("ne-base").value);
+  const bonus = parseFloat(document.getElementById("ne-bonus").value) || 0;
+  const other = parseFloat(document.getElementById("ne-other").value) || 0;
+  const carry = parseFloat(document.getElementById("ne-carry").value) || 0;
+  const errEl = document.getElementById("ne-error");
+  if(!base || base<=0){
+    errEl.textContent = "Please enter a valid base salary.";
+    errEl.classList.remove("hidden");
+    return;
+  }
+  const emp = {
+    id: nextEmployeeId(), role, location, strategy,
+    baseSalary: base, bonus, other, carry, totalComp: base+bonus+other+carry, status:"Active"
+  };
+  state.employees.push(emp);
+  state.employeesAddedCount++;
+  state.company.size = Math.max(state.company.size, state.employees.length);
+  logActivity(`added employee ${emp.id} (${role})`);
+  showToast(`${emp.id} added successfully.`, "good");
+  closeModal();
+  renderContent();
+}
+function viewEmployee(id){
+  const e = state.employees.find(x=>x.id===id);
+  if(!e) return;
+  openModal(`
+    <div class="modal-head"><h3>${e.id}</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="list-row"><span class="list-row-title">Job Role</span><strong>${e.role}</strong></div>
+      <div class="list-row"><span class="list-row-title">Location</span><strong>${e.location}</strong></div>
+      <div class="list-row"><span class="list-row-title">Strategy</span><strong>${e.strategy}</strong></div>
+      <div class="list-row"><span class="list-row-title">Base Salary</span><strong>${fmtMoney(e.baseSalary)}</strong></div>
+      <div class="list-row"><span class="list-row-title">Bonus</span><strong>${fmtMoney(e.bonus)}</strong></div>
+      <div class="list-row"><span class="list-row-title">Other Compensation</span><strong>${fmtMoney(e.other)}</strong></div>
+      <div class="list-row"><span class="list-row-title">Carry</span><strong>${e.carry ? fmtMoney(e.carry) : '—'}</strong></div>
+      <div class="list-row"><span class="list-row-title">Total Compensation</span><strong>${fmtMoney(e.totalComp)}</strong></div>
+      <div class="list-row"><span class="list-row-title">Status</span><span class="pill ${e.status==='Active'?'pill-good':'pill-warn'}">${e.status}</span></div>
+    </div>
+    <div class="modal-foot"><button class="btn" onclick="closeModal()">Close</button></div>
+  `);
+}
+function openEditEmployeeModal(id){
+  const e = state.employees.find(x=>x.id===id);
+  if(!e) return;
+  openModal(`
+    <div class="modal-head"><h3>Edit ${e.id}</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Job Role</label><select id="ee-role">${ROLES.map(r=>`<option ${r===e.role?'selected':''}>${r}</option>`).join("")}</select></div>
+        <div class="field"><label>Location</label><select id="ee-location">${LOCATIONS.map(r=>`<option ${r===e.location?'selected':''}>${r}</option>`).join("")}</select></div>
+        <div class="field"><label>Strategy</label><select id="ee-strategy">${STRATEGIES.map(r=>`<option ${r===e.strategy?'selected':''}>${r}</option>`).join("")}</select></div>
+        <div class="field"><label>Status</label><select id="ee-status"><option ${e.status==='Active'?'selected':''}>Active</option><option ${e.status==='Needs Review'?'selected':''}>Needs Review</option></select></div>
+        <div class="field"><label>Base Salary (£)</label><input id="ee-base" type="number" value="${e.baseSalary}"></div>
+        <div class="field"><label>Bonus (£)</label><input id="ee-bonus" type="number" value="${e.bonus}"></div>
+        <div class="field"><label>Other Compensation (£)</label><input id="ee-other" type="number" value="${e.other}"></div>
+        <div class="field"><label>Carry (£)</label><input id="ee-carry" type="number" value="${e.carry}"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitEditEmployee('${id}')">Save Changes</button>
+    </div>
+  `);
+}
+function submitEditEmployee(id){
+  const e = state.employees.find(x=>x.id===id);
+  e.role = document.getElementById("ee-role").value;
+  e.location = document.getElementById("ee-location").value;
+  e.strategy = document.getElementById("ee-strategy").value;
+  e.status = document.getElementById("ee-status").value;
+  e.baseSalary = parseFloat(document.getElementById("ee-base").value)||e.baseSalary;
+  e.bonus = parseFloat(document.getElementById("ee-bonus").value)||0;
+  e.other = parseFloat(document.getElementById("ee-other").value)||0;
+  e.carry = parseFloat(document.getElementById("ee-carry").value)||0;
+  e.totalComp = e.baseSalary+e.bonus+e.other+e.carry;
+  logActivity(`edited employee ${e.id}`);
+  showToast(`${e.id} updated.`, "good");
+  closeModal();
+  renderContent();
+}
+function confirmRemoveEmployee(id){
+  openModal(`
+    <div class="modal-head"><h3>Remove Employee</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">Are you sure you want to remove <strong>${id}</strong> from your employee records? This cannot be undone.</div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="removeEmployee('${id}')">Remove Employee</button>
+    </div>
+  `);
+}
+function removeEmployee(id){
+  state.employees = state.employees.filter(e=>e.id!==id);
+  logActivity(`removed employee ${id}`);
+  showToast(`${id} removed.`, "good");
+  closeModal();
+  renderContent();
+}
+
+/* ======================================================================
+   EMPLOYEE GROUPS
+====================================================================== */
+function groupMembers(g){
+  return state.employees.filter(e=>{
+    if(g.role && e.role!==g.role) return false;
+    if(g.location && e.location!==g.location) return false;
+    if(g.strategy && e.strategy!==g.strategy) return false;
+    return true;
+  });
+}
+function renderGroups(){
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Employee Groups</div><div class="page-sub">An Employee Group is a set of similar employees you want to compare. Use groups to run market comparisons.</div></div>
+    <div class="page-actions"><button class="btn btn-primary" onclick="openGroupModal()">+ Create Employee Group</button></div>
+  </div>
+  <div class="grid grid-3">
+    ${state.employeeGroups.map(g=>{
+      const members = groupMembers(g);
+      return `
+      <div class="card">
+        <div class="card-title">${g.name}</div>
+        <div class="page-sub" style="margin-bottom:10px;">
+          ${g.role?`<span class="pill pill-muted" style="margin-right:4px;">${g.role}</span>`:""}
+          ${g.location?`<span class="pill pill-muted" style="margin-right:4px;">${g.location}</span>`:""}
+          ${g.strategy?`<span class="pill pill-muted">${g.strategy}</span>`:""}
+        </div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:14px;">${members.length} members · created ${g.createdOn}</div>
+        <div class="row-actions">
+          <button class="btn btn-sm" onclick="viewGroupMembers('${g.id}')">View Members</button>
+          <button class="btn btn-sm" onclick="openGroupModal('${g.id}')">Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="confirmDeleteGroup('${g.id}')">Delete</button>
+        </div>
+        <button class="btn btn-sm btn-block" style="margin-top:10px;" onclick="runComparisonForGroup('${g.id}')">Compare This Group</button>
+      </div>`;
+    }).join("")}
+  </div>
+  ${!state.employeeGroups.length ? `<div class="card empty-state"><h3>No groups yet</h3><p>Create your first Employee Group to start comparing compensation.</p></div>` : ""}
+  `;
+}
+function viewGroupMembers(id){
+  const g = state.employeeGroups.find(x=>x.id===id);
+  const members = groupMembers(g);
+  openModal(`
+    <div class="modal-head"><h3>${g.name} — Members</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      ${members.length ? `
+      <div class="table-wrap"><table><thead><tr><th>Employee ID</th><th>Job Role</th><th>Location</th><th>Strategy</th><th>Total Comp</th></tr></thead>
+      <tbody>${members.map(e=>`<tr><td>${e.id}</td><td>${e.role}</td><td>${e.location}</td><td>${e.strategy}</td><td>${fmtMoney(e.totalComp)}</td></tr>`).join("")}</tbody></table></div>
+      ` : `<div class="empty-state">No matching employees currently.</div>`}
+    </div>
+    <div class="modal-foot"><button class="btn" onclick="closeModal()">Close</button></div>
+  `, {wide:true});
+}
+function openGroupModal(id){
+  const g = id ? state.employeeGroups.find(x=>x.id===id) : null;
+  openModal(`
+    <div class="modal-head"><h3>${g?'Edit':'Create'} Employee Group</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="page-sub" style="margin-bottom:14px;">An Employee Group is a set of similar employees you want to compare.</div>
+      <div class="field"><label>Group Name</label><input id="gf-name" type="text" placeholder="e.g. London Investment Directors" value="${g?g.name:''}"></div>
+      <div class="form-grid" style="margin-top:14px;">
+        <div class="field"><label>Job Role <span class="hint">Optional</span></label>
+          <select id="gf-role"><option value="">Any</option>${ROLES.map(r=>`<option ${g&&g.role===r?'selected':''}>${r}</option>`).join("")}</select></div>
+        <div class="field"><label>Location <span class="hint">Optional</span></label>
+          <select id="gf-location"><option value="">Any</option>${LOCATIONS.map(r=>`<option ${g&&g.location===r?'selected':''}>${r}</option>`).join("")}</select></div>
+        <div class="field"><label>Strategy <span class="hint">Optional</span></label>
+          <select id="gf-strategy"><option value="">Any</option>${STRATEGIES.map(r=>`<option ${g&&g.strategy===r?'selected':''}>${r}</option>`).join("")}</select></div>
+      </div>
+      <div id="gf-error" class="field-error hidden" style="margin-top:10px;"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitGroup(${g?`'${g.id}'`:'null'})">${g?'Save Changes':'Create Group'}</button>
+    </div>
+  `);
+}
+function submitGroup(id){
+  const name = document.getElementById("gf-name").value.trim();
+  const role = document.getElementById("gf-role").value;
+  const location = document.getElementById("gf-location").value;
+  const strategy = document.getElementById("gf-strategy").value;
+  if(!name){
+    const err = document.getElementById("gf-error");
+    err.textContent = "Please enter a group name.";
+    err.classList.remove("hidden");
+    return;
+  }
+  if(id){
+    const g = state.employeeGroups.find(x=>x.id===id);
+    Object.assign(g, {name, role, location, strategy});
+    logActivity(`updated "${name}" group`);
+    showToast("Group updated.", "good");
+  } else {
+    state.employeeGroups.push({id:uid("grp"), name, role, location, strategy, createdOn:new Date().toISOString().slice(0,10)});
+    logActivity(`created "${name}" group`);
+    showToast("Employee Group created.", "good");
+  }
+  closeModal();
+  renderContent();
+}
+function confirmDeleteGroup(id){
+  const g = state.employeeGroups.find(x=>x.id===id);
+  openModal(`
+    <div class="modal-head"><h3>Delete Group</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">Delete <strong>${g.name}</strong>? This won't remove any employees, only the group.</div>
+    <div class="modal-foot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="deleteGroup('${id}')">Delete Group</button></div>
+  `);
+}
+function deleteGroup(id){
+  const g = state.employeeGroups.find(x=>x.id===id);
+  state.employeeGroups = state.employeeGroups.filter(x=>x.id!==id);
+  logActivity(`deleted "${g.name}" group`);
+  showToast("Group deleted.", "good");
+  closeModal();
+  renderContent();
+}
+function runComparisonForGroup(id){
+  const g = state.employeeGroups.find(x=>x.id===id);
+  state.comparisonSelection = {group:g.id, location:g.location, role:g.role, strategy:g.strategy};
+  navigate("comparison");
+  runComparison();
+}
+
+/* ======================================================================
+   UPLOAD EMPLOYEE DATA
+====================================================================== */
+function renderUpload(){
+  const u = state.uploadState;
+  const steps = ["Select File","Uploading","Validating","Preview","Import"];
+  let stepIndex = 0;
+  if(u){
+    if(u.stage==="uploading") stepIndex=1;
+    else if(u.stage==="validating") stepIndex=2;
+    else if(u.stage==="preview") stepIndex=3;
+    else if(u.stage==="done") stepIndex=4;
+  }
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Upload Employee Data</div><div class="page-sub">Upload your latest compensation data to keep market comparisons accurate.</div></div>
+    <div class="page-actions"><button class="btn" onclick="downloadTemplate()">Download Template</button></div>
+  </div>
+  <div class="card" style="max-width:900px;">
+    <div class="upload-steps">
+      ${steps.map((s,i)=>`<div class="upload-step ${i===stepIndex?'active':(i<stepIndex?'done':'')}">${i<stepIndex?'✓ ':''}${s}</div>`).join("")}
+    </div>
+    ${renderUploadStage()}
+  </div>
+  <div class="page-sub" style="margin-top:14px;max-width:900px;">You can use the Parity template to prepare employee compensation data. Supported formats: .csv, .xlsx</div>
+  `;
+}
+function renderUploadStage(){
+  const u = state.uploadState;
+  if(!u || u.stage==="select"){
+    return `
+      <div class="upload-drop" onclick="simulateFileSelect()">
+        <div style="font-size:15px;font-weight:600;color:var(--navy);margin-bottom:6px;">Click to select a file</div>
+        <div>CSV or Excel (.xlsx) — or drag and drop here</div>
+      </div>
+    `;
+  }
+  if(u.stage==="uploading"){
+    return `
+      <div style="text-align:center;padding:20px 0;">
+        <div style="font-weight:600;color:var(--navy);margin-bottom:6px;">Uploading ${u.filename}...</div>
+        <div class="progress-outer"><div class="progress-inner" style="width:${u.progress}%;"></div></div>
+        <div class="page-sub">${u.progress}%</div>
+      </div>
+    `;
+  }
+  if(u.stage==="validating"){
+    return `
+      <div style="text-align:center;padding:30px 0;">
+        <div style="font-weight:600;color:var(--navy);margin-bottom:10px;">Validating data...</div>
+        <div class="page-sub">Checking job roles, locations, and salary formats.</div>
+      </div>
+    `;
+  }
+  if(u.stage==="preview"){
+    return `
+      <div class="grid grid-3" style="margin-bottom:18px;">
+        <div class="card stat-card"><div class="stat-label">Records Found</div><div class="stat-value">${u.total}</div></div>
+        <div class="card stat-card"><div class="stat-label">Valid Records</div><div class="stat-value" style="color:var(--good);">${u.valid.length}</div></div>
+        <div class="card stat-card"><div class="stat-label">Needs Review</div><div class="stat-value" style="color:var(--warn);">${u.issues.length}</div></div>
+      </div>
+      <div style="margin-bottom:10px;">✓ ${u.valid.length} records ready to import &nbsp;&nbsp; ⚠ ${u.issues.length} records need review</div>
+
+      <h4 style="margin-bottom:10px;">Preview — Valid Records</h4>
+      <div class="table-wrap" style="margin-bottom:20px;">
+        <table><thead><tr><th>Row</th><th>Job Role</th><th>Location</th><th>Strategy</th><th>Base Salary</th><th>Bonus</th></tr></thead>
+        <tbody>${u.valid.slice(0,6).map(r=>`<tr><td>${r.row}</td><td>${r.role}</td><td>${r.location}</td><td>${r.strategy}</td><td>${fmtMoney(r.baseSalary)}</td><td>${fmtMoney(r.bonus)}</td></tr>`).join("")}</tbody></table>
+      </div>
+
+      ${u.issues.length ? `
+      <h4 style="margin-bottom:10px;">Needs Review</h4>
+      <div class="table-wrap" style="margin-bottom:20px;">
+        <table><thead><tr><th>Row</th><th>Job Role</th><th>Location</th><th>Issue</th><th></th></tr></thead>
+        <tbody>${u.issues.map((r,i)=>`
+          <tr>
+            <td>${r.row}</td><td>${r.role||'—'}</td><td>${r.location||'—'}</td>
+            <td><span class="pill pill-bad">${r.issue}</span></td>
+            <td class="row-actions">
+              <button class="btn btn-sm" onclick="fixIssue(${i})">Fix</button>
+              <button class="btn btn-sm" onclick="ignoreIssue(${i})">Ignore</button>
+            </td>
+          </tr>
+        `).join("")}</tbody></table>
+      </div>` : ""}
+
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary" onclick="confirmImport()">Import Valid Records (${u.valid.length})</button>
+        <button class="btn" onclick="cancelUpload()">Cancel</button>
+      </div>
+    `;
+  }
+  if(u.stage==="done"){
+    return `
+      <div style="text-align:center;padding:24px 0;">
+        <div class="suppressed-icon" style="background:var(--good-bg);color:var(--good);">✓</div>
+        <h3 style="margin-bottom:8px;">Import complete</h3>
+        <p class="page-sub">${u.imported} records were added to your employee data.</p>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:18px;">
+          <button class="btn btn-primary" onclick="navigate('employees')">View Employees</button>
+          <button class="btn" onclick="startNewUpload()">Upload Another File</button>
+        </div>
+      </div>
+    `;
+  }
+}
+function simulateFileSelect(){
+  state.uploadState = {stage:"uploading", filename:"ABC_Capital_Compensation_2026.xlsx", progress:0};
+  renderContent();
+  const interval = setInterval(()=>{
+    if(!state.uploadState || state.uploadState.stage!=="uploading"){ clearInterval(interval); return; }
+    state.uploadState.progress += 20;
+    if(state.uploadState.progress>=100){
+      clearInterval(interval);
+      state.uploadState.stage="validating";
+      renderContent();
+      setTimeout(()=>{
+        generateUploadPreview();
+        renderContent();
+      }, 900);
+    } else {
+      renderContent();
+    }
+  }, 250);
+}
+function generateUploadPreview(){
+  const total = 28;
+  const valid = [];
+  const issues = [];
+  for(let i=1;i<=total;i++){
+    const role = ROLES[i%ROLES.length];
+    const location = LOCATIONS[i%LOCATIONS.length];
+    const strategy = STRATEGIES[i%STRATEGIES.length];
+    if(i===11){ issues.push({row:i, role:"", location, issue:"Missing job role"}); continue; }
+    if(i===22){ issues.push({row:i, role, location:"", issue:"Missing location"}); continue; }
+    const base = Math.round(ROLE_BASE[role]*LOC_MULT[location]*STRAT_MULT[strategy]*(0.9+Math.random()*0.2)/1000)*1000;
+    const bonus = Math.round(base*ROLE_BONUS_MULT[role]*(0.85+Math.random()*0.3)/1000)*1000;
+    valid.push({row:i, role, location, strategy, baseSalary:base, bonus, other:Math.round(base*0.03/500)*500, carry:0});
+  }
+  state.uploadState = {stage:"preview", filename:state.uploadState.filename, total, valid, issues};
+}
+function fixIssue(i){
+  const u = state.uploadState;
+  const issue = u.issues[i];
+  openModal(`
+    <div class="modal-head"><h3>Fix Record — Row ${issue.row}</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="page-sub" style="margin-bottom:12px;">Issue: ${issue.issue}</div>
+      <div class="form-grid">
+        <div class="field"><label>Job Role</label><select id="fi-role">${ROLES.map(r=>`<option ${issue.role===r?'selected':''}>${r}</option>`).join("")}</select></div>
+        <div class="field"><label>Location</label><select id="fi-location">${LOCATIONS.map(r=>`<option ${issue.location===r?'selected':''}>${r}</option>`).join("")}</select></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="applyIssueFix(${i})">Save & Move to Valid</button></div>
+  `);
+}
+function applyIssueFix(i){
+  const u = state.uploadState;
+  const issue = u.issues[i];
+  const role = document.getElementById("fi-role").value;
+  const location = document.getElementById("fi-location").value;
+  const strategy = STRATEGIES[i%STRATEGIES.length];
+  const base = Math.round(ROLE_BASE[role]*LOC_MULT[location]*STRAT_MULT[strategy]/1000)*1000;
+  const bonus = Math.round(base*ROLE_BONUS_MULT[role]/1000)*1000;
+  u.valid.push({row:issue.row, role, location, strategy, baseSalary:base, bonus, other:0, carry:0});
+  u.issues.splice(i,1);
+  showToast(`Row ${issue.row} fixed and moved to valid records.`, "good");
+  closeModal();
+  renderContent();
+}
+function ignoreIssue(i){
+  const u = state.uploadState;
+  u.issues.splice(i,1);
+  showToast("Record ignored.", "");
+  renderContent();
+}
+function confirmImport(){
+  const u = state.uploadState;
+  const imported = u.valid.length;
+  u.valid.forEach(r=>{
+    state.employees.push({
+      id: nextEmployeeId(), role:r.role, location:r.location, strategy:r.strategy,
+      baseSalary:r.baseSalary, bonus:r.bonus, other:r.other||0, carry:r.carry||0,
+      totalComp:r.baseSalary+r.bonus+(r.other||0)+(r.carry||0), status:"Active"
+    });
+  });
+  state.employeesAddedCount += imported;
+  state.lastDataUpdate = new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
+  state.uploadState = {stage:"done", imported};
+  logActivity("uploaded employee data");
+  pushNotification("Employee data upload completed.");
+  showToast(`${imported} records imported successfully.`, "good");
+  renderContent();
+}
+function cancelUpload(){ state.uploadState = null; renderContent(); }
+function startNewUpload(){ state.uploadState = null; renderContent(); }
+function downloadTemplate(){
+  const header = "Job Role,Location,Strategy,Base Salary,Bonus,Other Compensation,Carry\n";
+  const sample = "Vice President,London,Private Equity,190000,110000,5000,0\n";
+  const csv = header + sample;
+  triggerDownload("Parity_Employee_Data_Template.csv", csv, "text/csv");
+  showToast("Template downloaded.", "good");
+}
+function triggerDownload(filename, content, mime){
+  const blob = new Blob([content], {type:mime||"text/plain"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+
+/* ======================================================================
+   MARKET COMPARISON
+====================================================================== */
+const MIN_SAMPLE_SIZE = 5;
+
+function renderComparison(){
+  const sel = state.comparisonSelection;
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Market Comparison</div><div class="page-sub">Compare ${state.company.name}'s compensation with relevant market data.</div></div>
+    <div class="page-actions"><button class="btn" onclick="openMethodologyModal()">How this comparison works</button></div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <div class="form-grid">
+      <div class="field"><label>Employee Group <span class="hint">Optional</span></label>
+        <select id="cs-group" onchange="onGroupSelect(this.value)">
+          <option value="">Custom selection</option>
+          ${state.employeeGroups.map(g=>`<option value="${g.id}" ${sel.group===g.id?'selected':''}>${g.name}</option>`).join("")}
+        </select>
+      </div>
+      <div class="field"><label>Job Role</label>
+        <select id="cs-role" onchange="setComparisonField('role',this.value)">
+          <option value="">Select role</option>
+          ${ROLES.map(r=>`<option ${sel.role===r?'selected':''}>${r}</option>`).join("")}
+        </select>
+      </div>
+      <div class="field"><label>Location</label>
+        <select id="cs-location" onchange="setComparisonField('location',this.value)">
+          <option value="">Any</option>
+          ${LOCATIONS.map(r=>`<option ${sel.location===r?'selected':''}>${r}</option>`).join("")}
+        </select>
+      </div>
+      <div class="field"><label>Strategy</label>
+        <select id="cs-strategy" onchange="setComparisonField('strategy',this.value)">
+          <option value="">Any</option>
+          ${STRATEGIES.map(r=>`<option ${sel.strategy===r?'selected':''}>${r}</option>`).join("")}
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:16px;" onclick="runComparison()">Run Comparison</button>
+  </div>
+
+  <div id="comparison-result">${renderComparisonResult()}</div>
+  `;
+}
+function onGroupSelect(id){
+  state.comparisonSelection.group = id;
+  if(id){
+    const g = state.employeeGroups.find(x=>x.id===id);
+    state.comparisonSelection.role = g.role;
+    state.comparisonSelection.location = g.location;
+    state.comparisonSelection.strategy = g.strategy;
+  }
+  renderContent();
+}
+function setComparisonField(key,val){ state.comparisonSelection[key]=val; }
+
+function runComparison(){
+  const sel = state.comparisonSelection;
+  if(!sel.role){
+    showToast("Please select a job role to run a comparison.", "bad");
+    return;
+  }
+  const emps = matchingEmployees(sel);
+  const avg = companyAverages(emps);
+  const bench = marketBenchmark(sel.role, sel.location, sel.strategy);
+  state.comparisonResult = {
+    selection:{...sel},
+    sampleSize: emps.length,
+    company: avg,
+    market: bench
+  };
+  state.comparisonTab = "base";
+  document.getElementById("comparison-result").innerHTML = renderComparisonResult();
+  document.getElementById("comparison-result").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function renderComparisonResult(){
+  const r = state.comparisonResult;
+  if(!r) return `<div class="card empty-state"><h3>No comparison yet</h3><p>Select an Employee Group or Job Role above, then click "Run Comparison".</p></div>`;
+
+  if(r.sampleSize < MIN_SAMPLE_SIZE){
+    return `
+    <div class="card suppressed">
+      <div class="suppressed-icon">!</div>
+      <h3>More data is needed to display this comparison.</h3>
+      <p class="page-sub" style="max-width:480px;margin:10px auto;">To protect confidentiality, Parity does not display benchmarks where the available sample is too small.</p>
+      <div style="margin:14px 0;"><span class="pill pill-bad">Sample Size: ${r.sampleSize}</span></div>
+      <p class="page-sub">Result: Benchmark suppressed for privacy.</p>
+      <button class="btn btn-primary" style="margin-top:16px;" onclick="broadenComparison()">Try a broader Employee Group</button>
+    </div>`;
+  }
+
+  const c = r.company, m = r.market;
+  return `
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-title">
+      <span>${state.company.name} vs Market — ${r.selection.role}${r.selection.location?', '+r.selection.location:''}${r.selection.strategy?', '+r.selection.strategy:''}</span>
+      <span class="pill pill-muted">Sample size: ${r.sampleSize}</span>
+    </div>
+    <div class="page-sub" style="margin-bottom:16px;">Illustrative demo values — not live market data.</div>
+    <div class="grid grid-3">
+      <div class="comp-figure">
+        <div class="lbl">${state.company.name} Avg. Base</div>
+        <div class="val">${fmtMoney(c.base)}</div>
+        <div class="sub">Market Median: ${fmtMoney(m.base)}</div>
+      </div>
+      <div class="comp-figure">
+        <div class="lbl">${state.company.name} Avg. Bonus</div>
+        <div class="val">${fmtMoney(c.bonus)}</div>
+        <div class="sub">Market Median: ${fmtMoney(m.bonus)}</div>
+      </div>
+      <div class="comp-figure">
+        <div class="lbl">${state.company.name} Total Compensation</div>
+        <div class="val">${fmtMoney(c.total)}</div>
+        <div class="sub">Market Median: ${fmtMoney(m.total)}</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="saveComparison()">Save Comparison</button>
+      <button class="btn" onclick="generateReportFromComparison()">Generate Report</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-title">Compensation Components</div>
+    <div class="tabs">
+      <div class="tab ${state.comparisonTab==='base'?'active':''}" onclick="setComparisonTab('base')">Base Salary</div>
+      <div class="tab ${state.comparisonTab==='bonus'?'active':''}" onclick="setComparisonTab('bonus')">Bonus</div>
+      <div class="tab ${state.comparisonTab==='total'?'active':''}" onclick="setComparisonTab('total')">Total Compensation</div>
+      <div class="tab ${state.comparisonTab==='carry'?'active':''}" onclick="setComparisonTab('carry')">Carry</div>
+      <div class="tab ${state.comparisonTab==='benefits'?'active':''}" onclick="setComparisonTab('benefits')">Benefits</div>
+    </div>
+    ${renderComponentTab(r)}
+  </div>
+
+  ${renderGroupCompareSection()}
+  `;
+}
+function setComparisonTab(t){ state.comparisonTab=t; document.getElementById("comparison-result").innerHTML = renderComparisonResult(); }
+
+function renderComponentTab(r){
+  const c = r.company, m = r.market;
+  const tab = state.comparisonTab;
+  if(tab==="benefits"){
+    return `
+      <p class="page-sub">Benefits data (healthcare, pension contributions, and perks) is illustrative in this POC and not itemised per employee.</p>
+      <div class="bar-compare"><div class="bar-compare-label"><span>${state.company.name} Estimated Benefits Value</span><strong>${fmtMoney(c.base*0.08)}</strong></div></div>
+      <div class="bar-compare"><div class="bar-compare-label"><span>Market Median Benefits Value</span><strong>${fmtMoney(m.base*0.085)}</strong></div></div>
+    `;
+  }
+  const map = {base:{co:c.base, mk:m.base, rg:m.range.base, label:"Base Salary"},
+    bonus:{co:c.bonus, mk:m.bonus, rg:m.range.bonus, label:"Bonus"},
+    total:{co:c.total, mk:m.total, rg:m.range.total, label:"Total Compensation"},
+    carry:{co:c.carry, mk:m.carry, rg:m.range.carry, label:"Carry"}};
+  const d = map[tab];
+  if(tab==="carry" && !m.carry){
+    return `<p class="page-sub">Carry is not typically applicable for this role/strategy combination.</p>`;
+  }
+  const maxVal = Math.max(d.co, d.mk, d.rg.high) * 1.05;
+  const pctCo = (d.co/maxVal)*100;
+  const pctMk = (d.mk/maxVal)*100;
+  const rangeLeft = (d.rg.low/maxVal)*100;
+  const rangeWidth = ((d.rg.high-d.rg.low)/maxVal)*100;
+  const markerCo = (d.co/maxVal)*100;
+  const markerMk = (d.mk/maxVal)*100;
+  return `
+    <div class="legend"><span><span class="dot company"></span>${state.company.name}</span><span><span class="dot market"></span>Market Median</span></div>
+    <div class="bar-compare">
+      <div class="bar-compare-label"><span>${state.company.name}</span><strong>${fmtMoney(d.co)}</strong></div>
+      <div class="bar-track"><div class="bar-fill company" style="width:${pctCo}%;"></div></div>
+    </div>
+    <div class="bar-compare">
+      <div class="bar-compare-label"><span>Market Median</span><strong>${fmtMoney(d.mk)}</strong></div>
+      <div class="bar-track"><div class="bar-fill market" style="width:${pctMk}%;"></div></div>
+    </div>
+    <div class="page-sub" style="margin-top:16px;margin-bottom:2px;">Market Range</div>
+    <div class="range-track">
+      <div class="range-fill" style="left:${rangeLeft}%;width:${rangeWidth}%;"></div>
+      <div class="range-marker" style="left:${markerCo}%;" title="${state.company.name}"></div>
+      <div class="range-marker market" style="left:${markerMk}%;" title="Market Median"></div>
+    </div>
+    <div class="range-labels"><span>${fmtMoney(d.rg.low)}</span><span>${fmtMoney(d.rg.high)}</span></div>
+    <div class="page-sub">${d.label} range across comparable roles. ${state.company.name} sits at <strong>${fmtMoney(d.co)}</strong>, market median is <strong>${fmtMoney(d.mk)}</strong>.</div>
+  `;
+}
+
+function renderGroupCompareSection(){
+  const gA = state.groupCompare.groupA, gB = state.groupCompare.groupB;
+  const groups = state.employeeGroups;
+  const rows = [gA, gB].filter(Boolean).map(id=>{
+    const g = groups.find(x=>x.id===id);
+    if(!g) return null;
+    const emps = groupMembers(g);
+    const avg = companyAverages(emps);
+    const bench = marketBenchmark(g.role || "Vice President", g.location, g.strategy);
+    return {g, avg, bench, sample:emps.length};
+  }).filter(Boolean);
+  return `
+  <div class="card">
+    <div class="card-title">Compare Employee Groups</div>
+    <div class="form-grid" style="margin-bottom:16px;">
+      <div class="field"><label>Group A</label>
+        <select onchange="setGroupCompare('groupA', this.value)">
+          <option value="">None</option>
+          ${groups.map(g=>`<option value="${g.id}" ${gA===g.id?'selected':''}>${g.name}</option>`).join("")}
+        </select>
+      </div>
+      <div class="field"><label>Group B</label>
+        <select onchange="setGroupCompare('groupB', this.value)">
+          <option value="">None</option>
+          ${groups.map(g=>`<option value="${g.id}" ${gB===g.id?'selected':''}>${g.name}</option>`).join("")}
+        </select>
+      </div>
+    </div>
+    ${rows.length ? `
+    <div class="table-wrap">
+      <table><thead><tr><th>Employee Group</th><th>Company Average (Total Comp)</th><th>Market Median</th><th>Market Range</th><th>Sample Size</th></tr></thead>
+      <tbody>
+        ${rows.map(row=>`
+          <tr>
+            <td><strong>${row.g.name}</strong></td>
+            <td>${row.sample>=MIN_SAMPLE_SIZE ? fmtMoney(row.avg.total) : '<span class="pill pill-bad">Suppressed</span>'}</td>
+            <td>${fmtMoney(row.bench.total)}</td>
+            <td>${fmtMoney(row.bench.range.total.low)} – ${fmtMoney(row.bench.range.total.high)}</td>
+            <td>${row.sample}</td>
+          </tr>
+        `).join("")}
+      </tbody></table>
+    </div>
+    ` : `<div class="empty-state">Select two groups above to compare.</div>`}
+  </div>
+  `;
+}
+function setGroupCompare(key,val){
+  state.groupCompare[key] = val;
+  document.getElementById("comparison-result").innerHTML = renderComparisonResult();
+}
+function broadenComparison(){
+  state.comparisonSelection.location = "";
+  state.comparisonSelection.strategy = "";
+  runComparison();
+  renderContent();
+}
+function openMethodologyModal(){
+  openModal(`
+    <div class="modal-head"><h3>How this comparison works</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <p>Parity compares your employer data with relevant market data using factors such as:</p>
+      <ul>
+        <li>Job role</li>
+        <li>Location</li>
+        <li>Experience / seniority</li>
+        <li>Investment strategy</li>
+        <li>Compensation type</li>
+      </ul>
+      <p class="page-sub" style="margin-top:12px;">Market figures shown in this POC are illustrative. To protect confidentiality, comparisons are suppressed when the underlying sample size is too small.</p>
+    </div>
+    <div class="modal-foot"><button class="btn btn-primary" onclick="closeModal()">Got it</button></div>
+  `);
+}
+
+/* ---- Save comparison / generate report from result ---- */
+function saveComparison(){
+  const r = state.comparisonResult;
+  if(!r) return;
+  const groupName = r.selection.group ? state.employeeGroups.find(g=>g.id===r.selection.group)?.name : r.selection.role;
+  const defaultName = `${groupName} — ${new Date().getFullYear()}`;
+  openModal(`
+    <div class="modal-head"><h3>Save Comparison</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Comparison Name</label><input id="sc-name" type="text" value="${defaultName}"></div>
+    </div>
+    <div class="modal-foot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="submitSaveComparison()">Save Comparison</button></div>
+  `);
+}
+function submitSaveComparison(){
+  const r = state.comparisonResult;
+  const name = document.getElementById("sc-name").value.trim() || "Untitled Comparison";
+  const groupName = r.selection.group ? state.employeeGroups.find(g=>g.id===r.selection.group)?.name : "Custom Selection";
+  state.savedComparisons.unshift({
+    id: uid("cmp"), name, date: new Date().toISOString().slice(0,10),
+    group: groupName, location: r.selection.location, strategy: r.selection.strategy, role: r.selection.role
+  });
+  logActivity(`saved comparison "${name}"`);
+  pushNotification(`Your ${r.selection.role} comparison is ready.`);
+  showToast("Comparison saved.", "good");
+  closeModal();
+  renderContent();
+}
+function generateReportFromComparison(){
+  const r = state.comparisonResult;
+  if(!r) return;
+  const groupName = r.selection.group ? state.employeeGroups.find(g=>g.id===r.selection.group)?.name : r.selection.role;
+  const name = `${groupName} Benchmark`;
+  state.reports.unshift({
+    id: uid("rep"), name, date: new Date().toISOString().slice(0,10),
+    group: groupName, location: r.selection.location, strategy: r.selection.strategy, role: r.selection.role,
+    data: r
+  });
+  logActivity(`generated a compensation report`);
+  showToast("Report generated. View it in Reports.", "good");
+  navigate("reports");
+}
+function viewSavedComparison(id){
+  const cmp = state.savedComparisons.find(x=>x.id===id);
+  if(!cmp) return;
+  state.comparisonSelection = {group:"", location:cmp.location, role:cmp.role, strategy:cmp.strategy};
+  navigate("comparison");
+  runComparison();
+}
+
+/* ======================================================================
+   SAVED COMPARISONS
+====================================================================== */
+function renderSaved(){
+  const list = state.savedComparisons;
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Saved Comparisons</div><div class="page-sub">Comparisons you've saved for future reference.</div></div>
+    <div class="page-actions"><button class="btn btn-primary" onclick="navigate('comparison')">Run New Comparison</button></div>
+  </div>
+  ${list.length ? `
+  <div class="table-wrap">
+    <table><thead><tr><th>Comparison Name</th><th>Date</th><th>Employee Group</th><th>Location</th><th>Strategy</th><th></th></tr></thead>
+    <tbody>
+      ${list.map(c=>`
+        <tr>
+          <td><strong>${c.name}</strong></td>
+          <td>${c.date}</td>
+          <td>${c.group}</td>
+          <td>${c.location||'—'}</td>
+          <td>${c.strategy||'—'}</td>
+          <td class="row-actions">
+            <button class="btn btn-sm" onclick="viewSavedComparison('${c.id}')">View</button>
+            <button class="btn btn-sm" onclick="renameComparison('${c.id}')">Rename</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteComparison('${c.id}')">Delete</button>
+          </td>
+        </tr>
+      `).join("")}
+    </tbody></table>
+  </div>
+  ` : `<div class="card empty-state"><h3>No saved comparisons yet</h3><p>Run a market comparison and save it to see it here.</p><button class="btn btn-primary" style="margin-top:12px;" onclick="navigate('comparison')">Run Market Comparison</button></div>`}
+  `;
+}
+function renameComparison(id){
+  const c = state.savedComparisons.find(x=>x.id===id);
+  openModal(`
+    <div class="modal-head"><h3>Rename Comparison</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body"><div class="field"><label>Name</label><input id="rn-name" type="text" value="${c.name}"></div></div>
+    <div class="modal-foot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="submitRename('${id}')">Save</button></div>
+  `);
+}
+function submitRename(id){
+  const c = state.savedComparisons.find(x=>x.id===id);
+  c.name = document.getElementById("rn-name").value.trim() || c.name;
+  showToast("Comparison renamed.", "good");
+  closeModal();
+  renderContent();
+}
+function deleteComparison(id){
+  openModal(`
+    <div class="modal-head"><h3>Delete Comparison</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">Are you sure you want to delete this saved comparison?</div>
+    <div class="modal-foot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="submitDeleteComparison('${id}')">Delete</button></div>
+  `);
+}
+function submitDeleteComparison(id){
+  state.savedComparisons = state.savedComparisons.filter(x=>x.id!==id);
+  showToast("Comparison deleted.", "good");
+  closeModal();
+  renderContent();
+}
+
+/* ======================================================================
+   REPORTS
+====================================================================== */
+function renderReports(){
+  const list = state.reports;
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Reports</div><div class="page-sub">Generated compensation reports ready to share or download.</div></div>
+    <div class="page-actions"><button class="btn btn-primary" onclick="navigate('comparison')">Generate New Report</button></div>
+  </div>
+  ${list.length ? `
+  <div class="grid grid-3">
+    ${list.map(r=>`
+      <div class="card">
+        <div class="card-title">${r.name}</div>
+        <div class="page-sub" style="margin-bottom:14px;">${r.date}</div>
+        <div class="row-actions">
+          <button class="btn btn-sm" onclick="viewReport('${r.id}')">View Report</button>
+          <button class="btn btn-sm btn-primary" onclick="downloadReport('${r.id}')">Download</button>
+        </div>
+      </div>
+    `).join("")}
+  </div>
+  ` : `<div class="card empty-state"><h3>No reports yet</h3><p>Generate a report from any market comparison.</p></div>`}
+  `;
+}
+function buildReportText(r){
+  const groupLabel = r.group || "—";
+  const sampleNote = r.data ? r.data.sampleSize : "26";
+  const company = r.data ? r.data.company : null;
+  const market = r.data ? r.data.market : null;
+  let figures = "Illustrative figures were not retained for this legacy report.";
+  if(company && market){
+    figures = `
+Base Salary — ${state.company.name} Avg: £${Math.round(company.base).toLocaleString()}  |  Market Median: £${Math.round(market.base).toLocaleString()}  |  Range: £${market.range.base.low.toLocaleString()}–£${market.range.base.high.toLocaleString()}
+Bonus — ${state.company.name} Avg: £${Math.round(company.bonus).toLocaleString()}  |  Market Median: £${Math.round(market.bonus).toLocaleString()}  |  Range: £${market.range.bonus.low.toLocaleString()}–£${market.range.bonus.high.toLocaleString()}
+Total Compensation — ${state.company.name} Avg: £${Math.round(company.total).toLocaleString()}  |  Market Median: £${Math.round(market.total).toLocaleString()}  |  Range: £${market.range.total.low.toLocaleString()}–£${market.range.total.high.toLocaleString()}
+${market.carry ? `Carry — ${state.company.name} Avg: £${Math.round(company.carry).toLocaleString()}  |  Market Median: £${Math.round(market.carry).toLocaleString()}` : "Carry — Not applicable for this role/strategy"}
+`;
+  }
+  return `PARITY — COMPENSATION BENCHMARK REPORT
+DEMO ENVIRONMENT — Illustrative Data
+
+Company: ${state.company.name} (${state.company.industry})
+Report: ${r.name}
+Date Generated: ${r.date}
+Employee Group: ${groupLabel}
+Location: ${r.location || "All"}
+Strategy: ${r.strategy || "All"}
+Data Period: FY2026 (Jan–Sep 2026)
+Sample Size: ${sampleNote} employee record(s)
+
+--------------------------------------------------
+COMPENSATION COMPARISON
+--------------------------------------------------
+${figures}
+--------------------------------------------------
+METHODOLOGY
+--------------------------------------------------
+Parity compares employer data with relevant market data using job role, location,
+experience/seniority, investment strategy, and compensation type. Market figures
+shown in this report are illustrative demo values.
+
+--------------------------------------------------
+SAMPLE-SIZE DISCLOSURE
+--------------------------------------------------
+To protect confidentiality, Parity does not display benchmarks where the available
+sample is too small. This report reflects data from ${sampleNote} matching employee
+record(s) at ${state.company.name}.
+`;
+}
+function viewReport(id){
+  const r = state.reports.find(x=>x.id===id);
+  if(!r) return;
+  logActivity(`viewed the ${r.name} report`);
+  openModal(`
+    <div class="modal-head"><h3>${r.name}</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body"><pre style="white-space:pre-wrap;font-family:inherit;font-size:13px;line-height:1.6;">${buildReportText(r)}</pre></div>
+    <div class="modal-foot"><button class="btn" onclick="closeModal()">Close</button><button class="btn btn-primary" onclick="downloadReport('${r.id}')">Download Report</button></div>
+  `, {wide:true});
+}
+function downloadReport(id){
+  const r = state.reports.find(x=>x.id===id);
+  const text = buildReportText(r);
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${r.name}</title></head><body><pre style="font-family:Arial,sans-serif;white-space:pre-wrap;">${text.replace(/</g,"&lt;")}</pre></body></html>`;
+  triggerDownload(`${r.name.replace(/\s+/g,'_')}.html`, html, "text/html");
+  logActivity(`downloaded the ${r.name} report`);
+  showToast("Report downloaded.", "good");
+}
+
+/* ======================================================================
+   USERS & ACCESS
+====================================================================== */
+const ACCESS_LEVELS = {
+  Admin:"Can manage company, employees, reports and users.",
+  Manager:"Can manage employee data and reports.",
+  Viewer:"Can view approved dashboards and reports."
+};
+function renderUsers(){
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Users & Access</div><div class="page-sub">Manage who at ${state.company.name} can access Parity.</div></div>
+    <div class="page-actions"><button class="btn btn-primary" onclick="openInviteModal()">Invite User</button></div>
+  </div>
+
+  <div class="grid grid-3" style="margin-bottom:20px;">
+    ${Object.entries(ACCESS_LEVELS).map(([lvl,desc])=>`
+      <div class="access-card"><h4>${lvl}</h4><p>${desc}</p></div>
+    `).join("")}
+  </div>
+
+  <div class="table-wrap">
+    <table><thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Access</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      ${state.users.map(u=>`
+        <tr>
+          <td><strong>${u.name}</strong></td>
+          <td>${u.role}</td>
+          <td>${u.email}</td>
+          <td><span class="pill pill-muted">${u.access}</span></td>
+          <td><span class="pill ${u.status==='Active'?'pill-good':(u.status==='Pending'?'pill-warn':'pill-bad')}">${u.status}</span></td>
+          <td class="row-actions">
+            <button class="btn btn-sm" onclick="openEditAccessModal('${u.id}')">Edit Access</button>
+            <button class="btn btn-sm ${u.status==='Deactivated'?'':'btn-danger'}" onclick="toggleUserStatus('${u.id}')">${u.status==='Deactivated'?'Reactivate':'Deactivate'}</button>
+          </td>
+        </tr>
+      `).join("")}
+    </tbody></table>
+  </div>
+  `;
+}
+function openInviteModal(){
+  openModal(`
+    <div class="modal-head"><h3>Invite User</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Full Name</label><input id="iu-name" type="text" placeholder="e.g. Emma Clarke"></div>
+      <div class="field" style="margin-top:12px;"><label>Work Email</label><input id="iu-email" type="text" placeholder="emma.clarke@abccapital.com"></div>
+      <div class="field" style="margin-top:12px;"><label>Role Title</label><input id="iu-role" type="text" placeholder="e.g. Compensation Analyst"></div>
+      <div class="field" style="margin-top:12px;"><label>Access Level</label>
+        <select id="iu-access"><option>Viewer</option><option>Manager</option><option>Admin</option></select>
+      </div>
+      <div id="iu-error" class="field-error hidden" style="margin-top:10px;"></div>
+    </div>
+    <div class="modal-foot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="submitInvite()">Send Invite</button></div>
+  `);
+}
+function submitInvite(){
+  const name = document.getElementById("iu-name").value.trim();
+  const email = document.getElementById("iu-email").value.trim();
+  const role = document.getElementById("iu-role").value.trim() || "Team Member";
+  const access = document.getElementById("iu-access").value;
+  if(!name || !email){
+    const err = document.getElementById("iu-error");
+    err.textContent = "Please enter a name and work email.";
+    err.classList.remove("hidden");
+    return;
+  }
+  state.users.push({id:uid("u"), name, role, email, access, status:"Pending"});
+  logActivity(`invited ${name} to the account`);
+  showToast(`Invitation sent to ${name}.`, "good");
+  closeModal();
+  renderContent();
+}
+function openEditAccessModal(id){
+  const u = state.users.find(x=>x.id===id);
+  openModal(`
+    <div class="modal-head"><h3>Edit Access — ${u.name}</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Access Level</label>
+        <select id="ea-access">
+          ${["Admin","Manager","Viewer"].map(l=>`<option ${u.access===l?'selected':''}>${l}</option>`).join("")}
+        </select>
+      </div>
+      <div class="page-sub" style="margin-top:10px;" id="ea-desc">${ACCESS_LEVELS[u.access]}</div>
+    </div>
+    <div class="modal-foot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="submitEditAccess('${id}')">Save Changes</button></div>
+  `);
+  document.getElementById("ea-access").addEventListener("change",(e)=>{
+    document.getElementById("ea-desc").textContent = ACCESS_LEVELS[e.target.value];
+  });
+}
+function submitEditAccess(id){
+  const u = state.users.find(x=>x.id===id);
+  u.access = document.getElementById("ea-access").value;
+  logActivity(`updated access for ${u.name} to ${u.access}`);
+  showToast("Access updated.", "good");
+  closeModal();
+  renderContent();
+}
+function toggleUserStatus(id){
+  const u = state.users.find(x=>x.id===id);
+  u.status = u.status==="Deactivated" ? "Active" : "Deactivated";
+  logActivity(`${u.status==='Deactivated'?'deactivated':'reactivated'} ${u.name}`);
+  showToast(`${u.name} ${u.status==='Deactivated'?'deactivated':'reactivated'}.`, "good");
+  renderContent();
+}
+
+/* ======================================================================
+   ACTIVITY
+====================================================================== */
+function renderActivity(){
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Activity</div><div class="page-sub">Recent actions taken across your Parity account.</div></div>
+  </div>
+  <div class="card">
+    ${state.activityLog.map(a=>`
+      <div class="list-row">
+        <div><div class="list-row-title">${a.who} ${a.text}</div><div class="list-row-sub">${a.time}</div></div>
+      </div>
+    `).join("") || `<div class="empty-state">No activity yet.</div>`}
+  </div>
+  `;
+}
+
+/* ======================================================================
+   SETTINGS
+====================================================================== */
+function renderSettings(){
+  const s = state.settings;
+  return `
+  <div class="page-header">
+    <div><div class="page-title">Settings</div><div class="page-sub">Manage your company, account, notification, privacy and security preferences.</div></div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-title">Company Information</div>
+      <p class="page-sub" style="margin-bottom:12px;">Manage company profile details from the My Company page.</p>
+      <button class="btn" onclick="navigate('company')">Go to My Company</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Account</div>
+      <div class="list-row"><span class="list-row-title">Name</span><strong>Sarah Williams</strong></div>
+      <div class="list-row"><span class="list-row-title">Role</span><strong>HR & Compensation Manager</strong></div>
+      <div class="list-row"><span class="list-row-title">Email</span><strong>sarah.williams@abccapital.com</strong></div>
+      <button class="btn" style="margin-top:12px;" onclick="showToast('Password reset link sent (simulated).','good')">Change Password</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Notifications</div>
+      <div class="settings-row">
+        <div><div class="list-row-title">Email Notifications</div><div class="list-row-sub">Receive account updates by email</div></div>
+        <label class="toggle"><input type="checkbox" ${s.emailNotifications?'checked':''} onchange="toggleSetting('emailNotifications')"><span class="slider"></span></label>
+      </div>
+      <div class="settings-row">
+        <div><div class="list-row-title">Report Notifications</div><div class="list-row-sub">Get notified when a report is generated</div></div>
+        <label class="toggle"><input type="checkbox" ${s.reportNotifications?'checked':''} onchange="toggleSetting('reportNotifications')"><span class="slider"></span></label>
+      </div>
+      <div class="settings-row">
+        <div><div class="list-row-title">Annual Data Reminder</div><div class="list-row-sub">Remind us to refresh compensation data yearly</div></div>
+        <label class="toggle"><input type="checkbox" ${s.annualReminder?'checked':''} onchange="toggleSetting('annualReminder')"><span class="slider"></span></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Privacy</div>
+      <p class="page-sub">Parity does not display benchmarks where the available sample size is too small, and never exposes individual employee identities — only Employee IDs are used throughout the platform.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Security</div>
+      <div class="settings-row">
+        <div><div class="list-row-title">Two-Factor Authentication</div><div class="list-row-sub">Add an extra layer of security (simulated)</div></div>
+        <label class="toggle"><input type="checkbox" onchange="showToast('Two-factor authentication setting updated (simulated).','good')"><span class="slider"></span></label>
+      </div>
+      <div class="settings-row">
+        <div><div class="list-row-title">Active Sessions</div><div class="list-row-sub">1 active session — this device</div></div>
+        <button class="btn btn-sm" onclick="showToast('All other sessions signed out (simulated).','good')">Sign Out Other Sessions</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Update Compensation Data</div>
+      <div class="list-row"><span class="list-row-title">Last Updated</span><strong>${state.lastDataUpdate}</strong></div>
+      <div class="list-row"><span class="list-row-title">Next Recommended Update</span><strong>September 2027</strong></div>
+      <button class="btn btn-primary" style="margin-top:12px;" onclick="navigate('upload')">Start Data Update</button>
+    </div>
+  </div>
+
+  <div class="grid grid-4" style="margin-top:18px;">
+    <div class="card coming-soon"><span class="cs-tag">Coming Soon</span><div class="card-title">Subscriptions & Billing</div><p class="page-sub">Manage your Parity plan and billing details.</p></div>
+    <div class="card coming-soon"><span class="cs-tag">Coming Soon</span><div class="card-title">HRIS Integrations</div><p class="page-sub">Connect Parity directly to your HR systems.</p></div>
+    <div class="card coming-soon"><span class="cs-tag">Coming Soon</span><div class="card-title">Advanced API Access</div><p class="page-sub">Programmatic access to your compensation data.</p></div>
+    <div class="card coming-soon"><span class="cs-tag">Coming Soon</span><div class="card-title">Premium Professional Features</div><p class="page-sub">Enhanced benchmarking for individual professionals.</p></div>
+  </div>
+  `;
+}
+function toggleSetting(key){
+  state.settings[key] = !state.settings[key];
+  logActivity(`changed ${key} setting to ${state.settings[key] ? 'on':'off'}`);
+  showToast("Settings updated.", "good");
+}
+
+/* ======================================================================
+   INIT
+====================================================================== */
+document.getElementById("login-email").addEventListener("keydown", e=>{ if(e.key==="Enter") handleLogin(); });
+document.getElementById("login-password").addEventListener("keydown", e=>{ if(e.key==="Enter") handleLogin(); });
+</script>
+</body>
+</html>
